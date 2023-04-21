@@ -1,0 +1,13 @@
+body {
+    font-family: verdana;
+}
+
+div.topicError {
+    font-size: 0.7em;
+    color: red;
+}
+
+div.lesInfoError {
+    font-size: 0.7em;
+    color: red;
+}
