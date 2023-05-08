@@ -11,3 +11,33 @@ div.lesInfoError {
     font-size: 0.7em;
     color: red;
 }
+
+table {
+    border-collapse: collapse;
+    width: 80%;
+}
+th {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+tr:nth-child(odd) {
+    background-color: white;
+}
+td, th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+ion-icon.cross {
+    font-size: 32px;
+    color: red;
+}
+ion-icoin.question {
+    font-size: 32px;
+    color: blue;
+}
