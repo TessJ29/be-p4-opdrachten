@@ -81,4 +81,37 @@ class Magazijnen extends Controller
             $this->view('Magazijnen/allergeenInfo', $data);
         }
     }
+
+    public function Leverancier() 
+    {
+        $leverancier = $this->magazijnModel->getLeveranciers();
+        $data = [
+            'title' => 'Overzicht Leveranciers',
+            'leverancier' => $leverancier ?? ''
+        ];
+        $this->view('magazijnen/leverancier', $data);
+    }
+
+    public function GeleverdeProducten($leverancierId) 
+    {
+        $leverancier = $this->magazijnModel->getLeverancierById($leverancierId);
+        $producten = $this->magazijnModel->getGeleverdeProducten($leverancierId);
+        if(empty($producten)) {
+            $message = "Dit bedrijf heeft tot nu toe geen producten geleverd aan Jamin";
+            header('Refresh:3; url=' . URLROOT . '/magazijnen/leverancier/');
+        } else {
+            $message = "";
+        }
+        $data = [
+            'title' => 'Geleverde Producten',
+            'LeverancierNaam' => $leverancier->Naam,
+            'ContactPersoon' => $leverancier->ContactPersoon,
+            'LeverancierNummer' => $leverancier->LeverancierNummer,
+            'Mobiel' => $leverancier->Mobiel,
+            'producten' => $producten,
+            'Message' => $message,
+        ];
+
+        $this->view('magazijnen/geleverdeProducten', $data);
+    }
 }

@@ -1,14 +1,15 @@
 <?php
 
 
-class Magazijn {
+class Magazijn
+{
     private $db;
 
     public function __construct()
     {
         $this->db = new Database();
-    } 
-    
+    }
+
     public function getProducts()
     {
         try {
@@ -31,7 +32,7 @@ class Magazijn {
         }
     }
 
-    public function getLeverantieInfo($naam) 
+    public function getLeverantieInfo($naam)
     {
         try {
             $this->db->query("SELECT 
@@ -99,4 +100,72 @@ class Magazijn {
             $e->getMessage();
         }
     }
+
+    public function getLeveranciers()
+    {
+        try {
+            $this->db->query("SELECT 
+            Leverancier.Id,
+            Leverancier.Naam,
+            Leverancier.ContactPersoon,
+            Leverancier.LeverancierNummer,
+            Leverancier.Mobiel,
+            ProductPerLeverancier.Id AS pplId,
+            COUNT(ProductPerLeverancier.ProductId) AS Aantal
+            FROM Leverancier
+            LEFT JOIN ProductPerLeverancier ON ProductPerLeverancier.LeverancierId = Leverancier.Id
+            GROUP BY Leverancier.Naam
+            ORDER BY Aantal DESC;");
+            $leveranciers = $this->db->resultSet();
+            return $leveranciers;
+        } catch (PDOException $e) {
+            $e->getMessage();
+        }
+    }
+
+    public function getLeverancierById($leverancierId)
+    {
+        try {
+            $this->db->query("SELECT
+            Id,
+            Naam,
+            ContactPersoon,
+            LeverancierNummer,
+            Mobiel
+            FROM Leverancier WHERE Id = :leverancierId");
+            $this->db->bind(':leverancierId', $leverancierId);
+            $leverancier = $this->db->single();
+            return $leverancier ?? [];
+        } catch (PDOException $e) {
+            $e->getMessage();
+        }
+    }
+    public function getGeleverdeProducten($leverancierId)
+    {
+        try {
+            $this->db->query("SELECT 
+                Product.Id AS productId,
+                Product.Naam,
+                Magazijn.Id AS magazijnId,
+                Magazijn.AantalAanwezig,
+                Magazijn.VerpakkingsEenheid,
+                ProductPerLeverancier.Id AS pplId,
+                ProductPerLeverancier.DatumLevering,
+                ProductPerLeverancier.LeverancierId AS LeverancierId
+                FROM Product
+                INNER JOIN ProductPerLeverancier ON ProductPerLeverancier.ProductId = Product.Id
+                INNER JOIN Magazijn ON Magazijn.ProductId = Product.Id
+                WHERE ProductPerLeverancier.DatumLevering = (
+                SELECT MAX(DatumLevering)
+                FROM ProductPerLeverancier
+                WHERE ProductPerLeverancier.LeverancierId = :leverancierId
+            )");
+            $this->db->bind(':leverancierId', $leverancierId);
+            $producten = $this->db->resultSet();
+            return $producten ?? [];
+        } catch (PDOException $e) {
+            $e->getMessage();
+        }
+    }
+    
 }
