@@ -37,9 +37,20 @@
                     <td><a href="<?= URLROOT; ?>/Magazijnen/nieuweLevering/<?= $product->LeverancierId ?>/<?= $product->productId ?>"><ion-icon name="add-outline"></ion-icon></a></td>
                 </tr>
             <?php endforeach; ?>
+            <?php if (!empty($data['Message'])) : ?>
+                <tr>
+                    <td colspan="5" style="text-align: center;">
+                        <h4><?= $data['Message'] ?></h4>
+                    </td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
-    <h4><?= $data['Message']?></h4>
+
+    <div class="buttons" style="text-align: right;">
+        <button class="terug"><a href="<?= URLROOT; ?>/Magazijnen/Leverancier">Terug</a></button>
+        <button class="home"><a href="<?= URLROOT; ?>/index">Home</a></button>
+    </div>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
