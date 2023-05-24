@@ -167,5 +167,13 @@ class Magazijn
             $e->getMessage();
         }
     }
-    
+
+    public function nieuweLevering($leverancierId, $productId)
+    {
+        try {
+            $this->db->query("");
+        } catch (PDOException $e) {
+            $e->getMessage();
+        }
+    }    
 }

@@ -34,7 +34,7 @@
                     <td><?= $product->AantalAanwezig ?></td>
                     <td><?= $product->VerpakkingsEenheid ?></td>
                     <td><?= $product->DatumLevering ?></td>
-                    <td><a href="<?= URLROOT; ?>/Magazijnen/nieuweLevering/<?= $product->productId ?>"><ion-icon name="add-outline"></ion-icon></a></td>
+                    <td><a href="<?= URLROOT; ?>/Magazijnen/nieuweLevering/<?= $product->LeverancierId ?>/<?= $product->productId ?>"><ion-icon name="add-outline"></ion-icon></a></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

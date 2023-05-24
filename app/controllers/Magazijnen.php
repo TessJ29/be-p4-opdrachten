@@ -114,4 +114,28 @@ class Magazijnen extends Controller
 
         $this->view('magazijnen/geleverdeProducten', $data);
     }
+    
+    public function nieuweLevering($leverancierId, $productId)
+    {
+        var_dump($productId);
+        var_dump($leverancierId);
+        $leverancier = $this->magazijnModel->getLeverancierById($leverancierId);
+
+        if($_SERVER["REQUEST_METHOD"] == "POST")
+        {
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+        }
+
+        $data = [
+            'title' => 'Levering product',
+            'LeverancierNaam' => $leverancier->Naam,
+            'ContactPersoon' => $leverancier->ContactPersoon,
+            'LeverancierNummer' => $leverancier->LeverancierNummer,
+            'Mobiel' => $leverancier->Mobiel,
+            'LeverancierId' => $leverancierId,
+            'ProductId' => $productId, 
+        ];
+        $this->view('magazijnen/nieuweLevering', $data);
+    }
 }
