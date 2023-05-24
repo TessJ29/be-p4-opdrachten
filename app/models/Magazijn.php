@@ -155,11 +155,9 @@ class Magazijn
                 FROM Product
                 INNER JOIN ProductPerLeverancier ON ProductPerLeverancier.ProductId = Product.Id
                 INNER JOIN Magazijn ON Magazijn.ProductId = Product.Id
-                WHERE ProductPerLeverancier.DatumLevering = (
-                SELECT MAX(DatumLevering)
-                FROM ProductPerLeverancier
                 WHERE ProductPerLeverancier.LeverancierId = :leverancierId
-            )");
+                ORDER BY Magazijn.AantalAanwezig DESC
+            ");
             $this->db->bind(':leverancierId', $leverancierId);
             $producten = $this->db->resultSet();
             return $producten ?? [];
@@ -168,12 +166,47 @@ class Magazijn
         }
     }
 
-    public function nieuweLevering($leverancierId, $productId)
+    public function getAantalAanwezig($leverancierId, $productId)
     {
         try {
-            $this->db->query("");
+            $this->db->query("SELECT Magazijn.AantalAanwezig FROM ProductPerLeverancier INNER JOIN Magazijn ON Magazijn.ProductId = ProductPerLeverancier.ProductId WHERE ProductPerLeverancier.LeverancierId = :leverancierId AND ProductPerLeverancier.ProductId = :productId");
+            $this->db->bind(':leverancierId', $leverancierId);
+            $this->db->bind(':productId', $productId);
+            $aantal = $this->db->single();
+            return $aantal;
         } catch (PDOException $e) {
             $e->getMessage();
         }
-    }    
+    }
+
+    public function nieuweLevering($leverancierId, $productId, $nieuweAantal, $presentDate, $post)
+    {
+        if ($post["DatumEerstVolgendeLevering"] > $presentDate) {
+            try {
+                $this->db->query("UPDATE Magazijn AS M
+                JOIN ProductPerLeverancier AS PPL ON M.ProductId = PPL.ProductId
+                SET M.AantalAanwezig = :aantal, PPL.DatumLevering = :datumLevering
+                WHERE PPL.LeverancierId = :leverancierId AND M.ProductId = :productId");
+                $this->db->bind(':aantal', $nieuweAantal);
+                $this->db->bind(':datumLevering', $post["DatumEerstVolgendeLevering"]);
+                $this->db->bind(':leverancierId', $leverancierId);
+                $this->db->bind(':productId', $productId);
+                $this->db->execute();
+                
+                if ($this->db->rowCount() == 0) {
+                    echo "Levering is succesvol gewijzigd.";
+                    header('Refresh:3; url=' . URLROOT . '/magazijnen/geleverdeProducten/' . $leverancierId);
+                } else {
+                    echo "Er is iets fout gegaan bij het updaten van de levering.";
+                }
+            } catch (PDOException $e) {
+                $e->getMessage();
+                echo "Er is iets fout gegaan.";
+            }
+        } else {
+            echo "Deze datum ligt in het verleden, graag een nieuwe datum invoeren.";
+            header('Refresh:3; url=' . URLROOT . '/magazijnen/nieuweLevering/' . $leverancierId . '/' . $productId);
+
+        }
+    }
 }

@@ -82,7 +82,7 @@ class Magazijnen extends Controller
         }
     }
 
-    public function Leverancier() 
+    public function Leverancier()
     {
         $leverancier = $this->magazijnModel->getLeveranciers();
         $data = [
@@ -92,11 +92,11 @@ class Magazijnen extends Controller
         $this->view('magazijnen/leverancier', $data);
     }
 
-    public function GeleverdeProducten($leverancierId) 
+    public function GeleverdeProducten($leverancierId)
     {
         $leverancier = $this->magazijnModel->getLeverancierById($leverancierId);
         $producten = $this->magazijnModel->getGeleverdeProducten($leverancierId);
-        if(empty($producten)) {
+        if (empty($producten)) {
             $message = "Dit bedrijf heeft tot nu toe geen producten geleverd aan Jamin";
             header('Refresh:3; url=' . URLROOT . '/magazijnen/leverancier/');
         } else {
@@ -114,17 +114,23 @@ class Magazijnen extends Controller
 
         $this->view('magazijnen/geleverdeProducten', $data);
     }
-    
+
     public function nieuweLevering($leverancierId, $productId)
     {
-        var_dump($productId);
-        var_dump($leverancierId);
         $leverancier = $this->magazijnModel->getLeverancierById($leverancierId);
+        $getAantal = $this->magazijnModel->getAantalAanwezig($leverancierId, $productId);
+        $previousAantal = $getAantal->AantalAanwezig;
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            try {
+                $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                $aantal = $_POST["Aantal"];
+                $nieuweAantal = $previousAantal + $aantal;
+                $presentDate = date('Y-m-d');
 
-        if($_SERVER["REQUEST_METHOD"] == "POST")
-        {
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-
+                $this->magazijnModel->nieuweLevering($leverancierId, $productId, $nieuweAantal, $presentDate, $_POST);
+            } catch (PDOException $e) {
+                $e->getMessage();
+            }
         }
 
         $data = [
@@ -134,7 +140,7 @@ class Magazijnen extends Controller
             'LeverancierNummer' => $leverancier->LeverancierNummer,
             'Mobiel' => $leverancier->Mobiel,
             'LeverancierId' => $leverancierId,
-            'ProductId' => $productId, 
+            'ProductId' => $productId,
         ];
         $this->view('magazijnen/nieuweLevering', $data);
     }
